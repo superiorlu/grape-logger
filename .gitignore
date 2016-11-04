@@ -7,3 +7,5 @@
 /pkg/
 /spec/reports/
 /tmp/
+.tags
+.tags_sorted_by_file

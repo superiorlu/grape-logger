@@ -1,4 +1,5 @@
 module Reporters
+  # :nodoc:
   class ActiveSupportReporter
     def initialize(instrumentation_key)
       @instrumentation_key = instrumentation_key

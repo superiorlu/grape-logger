@@ -1,23 +1,25 @@
 require 'grape/middleware/base'
 
-module GrapeLogging
+module GrapeLogger
   module Middleware
+    # :nodoc:
     class RequestLogger < Grape::Middleware::Base
-
-      ActiveSupport::Notifications.subscribe('sql.active_record') do |*args|
-        event = ActiveSupport::Notifications::Event.new(*args)
-        GrapeLogging::Timings.append_db_runtime(event)
-      end if defined?(ActiveRecord)
+      if defined?(ActiveRecord)
+        ActiveSupport::Notifications.subscribe('sql.active_record') do |*args|
+          event = ActiveSupport::Notifications::Event.new(*args)
+          GrapeLogger::Timings.append_db_runtime(event)
+        end
+      end
 
       def initialize(app, options = {})
         super
 
         @included_loggers = @options[:include] || []
         @reporter = if options[:instrumentation_key]
-          Reporters::ActiveSupportReporter.new(@options[:instrumentation_key])
-        else
-          Reporters::LoggerReporter.new(@options[:logger], @options[:formatter])
-        end
+                      Reporters::ActiveSupportReporter.new(@options[:instrumentation_key])
+                    else
+                      Reporters::LoggerReporter.new(@options[:logger], @options[:formatter])
+                    end
       end
 
       def before
@@ -41,11 +43,9 @@ module GrapeLogging
       protected
 
       def response
-        begin
-          super
-        rescue
-          nil
-        end
+        super
+      rescue
+        nil
       end
 
       def parameters
@@ -64,6 +64,7 @@ module GrapeLogging
       end
 
       private
+
       def request
         @request ||= ::Rack::Request.new(env)
       end
@@ -73,15 +74,15 @@ module GrapeLogging
       end
 
       def view_runtime
-        total_runtime - db_runtime
+        (total_runtime - db_runtime).round(2)
       end
 
       def db_runtime
-        GrapeLogging::Timings.db_runtime.round(2)
+        GrapeLogger::Timings.db_runtime.round(2)
       end
 
       def reset_db_runtime
-        GrapeLogging::Timings.reset_db_runtime
+        GrapeLogger::Timings.reset_db_runtime
       end
 
       def start_time

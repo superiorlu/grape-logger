@@ -1,7 +1,6 @@
-module GrapeLogging
+module GrapeLogger
   module Loggers
-    class RequestHeaders < GrapeLogging::Loggers::Base
-
+    class RequestHeaders < GrapeLogger::Loggers::Base
       HTTP_PREFIX = 'HTTP_'.freeze
 
       def parameters(request, _)
@@ -16,8 +15,6 @@ module GrapeLogging
 
         { headers: headers }
       end
-
-
     end
   end
 end

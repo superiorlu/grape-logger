@@ -1,6 +1,7 @@
-module GrapeLogging
+module GrapeLogger
   module Formatters
-    class Logstash
+    # format for logstash
+    class Logstash < Base
       def call(severity, datetime, _, data)
         {
           :'@timestamp' => datetime.iso8601,

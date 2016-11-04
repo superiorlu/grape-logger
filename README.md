@@ -6,7 +6,7 @@
 
 Add this line to your application's Gemfile:
 
-    gem 'grape_logging'
+    gem 'grape-logger'
 
 And then execute:
 
@@ -14,16 +14,16 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install grape_logging
+    $ gem install grape-logger
 
 ## Basic Usage
 
 In your api file (somewhere on the top)
 
 ```ruby
-require 'grape_logging'
-logger.formatter = GrapeLogging::Formatters::Default.new
-use GrapeLogging::Middleware::RequestLogger, { logger: logger }
+require 'grape_logger'
+logger.formatter = GrapeLogger::Formatters::Default.new #Optional
+use GrapeLogger::Middleware::RequestLogger, { logger: logger }
 ```
 
 **ProTip:** If your logger doesn't support setting formatter you can remove this line - it's optional
@@ -34,28 +34,28 @@ use GrapeLogging::Middleware::RequestLogger, { logger: logger }
 
 With the default configuration you will get nice log message
 
-    [2015-04-16 12:52:12 +0200] INFO -- 200 -- total=2.06 db=0.36 -- PATCH /your_app/endpoint params={"some_param"=>{"value_1"=>"123", "value_2"=>"456"}}
+    [70170094258720 2016-11-04 18:36:30.711] INFO 200 [425.4ms 62.52ms 362.88ms] GET /v1/path.json {"param1"=>"value1", "param2"=>"value2"}
 
 If you prefer some other format I strongly encourage you to do pull request with new formatter class ;)
 
 You can change the formatter like so
 ```ruby
 class MyAPI < Grape::API
-  use GrapeLogging::Middleware::RequestLogger, logger: logger, formatter: MyFormatter.new
+  use GrapeLogger::Middleware::RequestLogger, logger: logger, formatter: MyFormatter.new
 end
 ```
 
 ### Customising What Is Logged
 
-You can include logging of other parts of the request / response cycle by including subclasses of `GrapeLogging::Loggers::Base`
+You can include logging of other parts of the request / response cycle by including subclasses of `GrapeLogger::Loggers::Base`
 ```ruby
 class MyAPI < Grape::API
-  use GrapeLogging::Middleware::RequestLogger,
+  use GrapeLogger::Middleware::RequestLogger,
     logger: logger,
-    include: [ GrapeLogging::Loggers::Response.new,
-               GrapeLogging::Loggers::FilterParameters.new,
-               GrapeLogging::Loggers::ClientEnv.new,
-               GrapeLogging::Loggers::RequestHeaders.new ]
+    include: [ GrapeLogger::Loggers::Response.new,
+               GrapeLogger::Loggers::FilterParameters.new,
+               GrapeLogger::Loggers::ClientEnv.new,
+               GrapeLogger::Loggers::RequestHeaders.new ]
 end
 ```
 
@@ -74,7 +74,7 @@ You can log to file and STDOUT at the same time, you just need to assign new log
 ```ruby
 log_file = File.open('path/to/your/logfile.log', 'a')
 log_file.sync = true
-logger Logger.new GrapeLogging::MultiIO.new(STDOUT, log_file)
+logger Logger.new GrapeLogger::MultiIO.new(STDOUT, log_file)
 ```
 
 ### Logging via Rails instrumentation
@@ -83,10 +83,10 @@ You can choose to not pass the logger to ```grape_logging``` but instead send lo
 First, config ```grape_logging```, like that:
 ```ruby
 class MyAPI < Grape::API
-  use GrapeLogging::Middleware::RequestLogger,
+  use GrapeLogger::Middleware::RequestLogger,
     instrumentation_key: 'grape_key',
-    include: [ GrapeLogging::Loggers::Response.new,
-               GrapeLogging::Loggers::FilterParameters.new ]
+    include: [ GrapeLogger::Loggers::Response.new,
+               GrapeLogger::Loggers::FilterParameters.new ]
 end
 ```
 

@@ -1,6 +1,7 @@
-module GrapeLogging
+module GrapeLogger
+  #:nodoc:
   module Timings
-    extend self
+    module_function
 
     def db_runtime=(value)
       Thread.current[:grape_db_runtime] = value

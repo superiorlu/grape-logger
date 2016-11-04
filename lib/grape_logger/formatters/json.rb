@@ -1,6 +1,7 @@
-module GrapeLogging
+module GrapeLogger
   module Formatters
-    class Json
+    # format for json
+    class Json < Base
       def call(severity, datetime, _, data)
         {
           date: datetime,

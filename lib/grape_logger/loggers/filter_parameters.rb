@@ -1,6 +1,6 @@
-module GrapeLogging
+module GrapeLogger
   module Loggers
-    class FilterParameters < GrapeLogging::Loggers::Base
+    class FilterParameters < GrapeLogger::Loggers::Base
       def initialize(filter_parameters = nil, replacement = '[FILTERED]')
         @filter_parameters = filter_parameters || (defined?(Rails.application) ? Rails.application.config.filter_parameters : [])
         @replacement = replacement
@@ -11,6 +11,7 @@ module GrapeLogging
       end
 
       private
+
       def replace_parameters(parameters)
         @filter_parameters.each do |parameter_name|
           if parameters.key?(parameter_name.to_s)

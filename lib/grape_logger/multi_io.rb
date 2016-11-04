@@ -1,11 +1,12 @@
-module GrapeLogging
+module GrapeLogger
+  # :nodoc:
   class MultiIO
     def initialize(*targets)
       @targets = targets
     end
 
     def write(*args)
-      @targets.each {|t| t.write(*args)}
+      @targets.each { |t| t.write(*args) }
     end
 
     def close
