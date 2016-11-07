@@ -6,7 +6,7 @@
 
 Add this line to your application's Gemfile:
 
-    gem 'grape-logger'
+    gem 'grape-logger', require: 'grape_logger'
 
 And then execute:
 
@@ -21,9 +21,8 @@ Or install it yourself as:
 In your api file (somewhere on the top)
 
 ```ruby
-require 'grape_logger'
-logger.formatter = GrapeLogger::Formatters::Default.new #Optional
-use GrapeLogger::Middleware::RequestLogger, { logger: logger }
+class MyAPI < Grape::API
+  use GrapeLogger::Middleware::RequestLogger, logger: logger
 ```
 
 **ProTip:** If your logger doesn't support setting formatter you can remove this line - it's optional
@@ -34,7 +33,9 @@ use GrapeLogger::Middleware::RequestLogger, { logger: logger }
 
 With the default configuration you will get nice log message
 
-    [70170094258720 2016-11-04 18:36:30.711] INFO 200 [425.4ms 62.52ms 362.88ms] GET /v1/path.json {"param1"=>"value1", "param2"=>"value2"}
+    [70278236677880 2016-11-07 16:55:54.505] INFO GET /v1/api.json {"type"=>"user", "_"=>"1478489192872"}
+    [70278236677880 2016-11-07 16:55:54.519] DEBUG  User Load (1.8ms)  SELECT `users`.* FROM `users` WHERE `users`.`id` = 1
+    [70278236677880 2016-11-07 16:55:54.590] INFO Completed 200 in 85.41ms [DB:6.35ms View:79.06ms]
 
 If you prefer some other format I strongly encourage you to do pull request with new formatter class ;)
 
