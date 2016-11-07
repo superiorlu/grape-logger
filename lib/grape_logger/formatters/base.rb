@@ -5,7 +5,7 @@ module GrapeLogger
       def call(severity, datetime, _, msg)
       end
 
-      def format(message)
+      def format_msg(message)
       end
 
       def format_exception(exception)

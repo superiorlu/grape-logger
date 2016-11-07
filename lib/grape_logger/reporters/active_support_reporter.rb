@@ -8,5 +8,9 @@ module Reporters
     def perform(params)
       ActiveSupport::Notifications.instrument @instrumentation_key, params
     end
+
+    alias info perform
+    alias warn perform
+    alias error perform
   end
 end

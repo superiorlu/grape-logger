@@ -3,7 +3,7 @@ require 'grape/middleware/base'
 module GrapeLogger
   module Middleware
     # :nodoc:
-    class RequestLogger < Grape::Middleware::Base
+    class RequestLogger < Grape::Middleware::Globals
       if defined?(ActiveRecord)
         ActiveSupport::Notifications.subscribe('sql.active_record') do |*args|
           event = ActiveSupport::Notifications::Event.new(*args)
@@ -13,18 +13,21 @@ module GrapeLogger
 
       def initialize(app, options = {})
         super
-
-        @included_loggers = @options[:include] || []
+        @included_loggers = options[:include] || []
         @reporter = if options[:instrumentation_key]
-                      Reporters::ActiveSupportReporter.new(@options[:instrumentation_key])
+                      Reporters::ActiveSupportReporter.new(options[:instrumentation_key])
                     else
-                      Reporters::LoggerReporter.new(@options[:logger], @options[:formatter])
+                      Reporters::LoggerReporter.new(options[:logger], options[:formatter])
                     end
+        @status = nil
       end
 
       def before
+        super
         reset_db_runtime
+        set_request_id
         start_time
+        @reporter.info "#{request.request_method} #{request.path} #{request.params.to_h}"
 
         invoke_included_loggers(:before)
       end
@@ -37,36 +40,50 @@ module GrapeLogger
       end
 
       def call!(env)
-        super
+        @env = env
+        before
+        error = catch(:error) do
+          begin
+            @app_response = @app.call(@env)
+          rescue => e
+            @status = 500
+            @reporter.error e
+            raise e
+          end
+          nil
+        end
+        if error
+          @status = error[:status]
+          throw(:error, error)
+        else
+          @status, = *@app_response
+        end
+        @app_response
+      ensure
+        after
       end
 
       protected
 
-      def response
-        super
-      rescue
-        nil
-      end
-
       def parameters
         {
-          status: response.nil? ? 'fail' : response.status,
+          status: @status,
           time: {
             total: total_runtime,
             db: db_runtime,
             view: view_runtime
-          },
-          method: request.request_method,
-          path: request.path,
-          params: request.params,
-          host: request.host
+          }
         }
       end
 
       private
 
+      def set_request_id
+        Thread.current[:request_id] = request.object_id
+      end
+
       def request
-        @request ||= ::Rack::Request.new(env)
+        @request ||= env[Grape::Env::GRAPE_REQUEST]
       end
 
       def total_runtime

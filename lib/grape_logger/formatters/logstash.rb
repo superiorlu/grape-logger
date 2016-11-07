@@ -4,15 +4,16 @@ module GrapeLogger
     class Logstash < Base
       def call(severity, datetime, _, data)
         {
+          :'@request_id' => Thread.current[:request_id],
           :'@timestamp' => datetime.iso8601,
           :'@version' => '1',
           :severity => severity
-        }.merge!(format(data)).to_json
+        }.merge!(format_msg(data)).to_json
       end
 
       private
 
-      def format(data)
+      def format_msg(data)
         if data.is_a?(Hash)
           data
         elsif data.is_a?(String)
