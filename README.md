@@ -33,9 +33,9 @@ class MyAPI < Grape::API
 
 With the default configuration you will get nice log message
 
-    [70278236677880 2016-11-07 16:55:54.505] INFO GET /v1/api.json {"type"=>"user", "_"=>"1478489192872"}
-    [70278236677880 2016-11-07 16:55:54.519] DEBUG  User Load (1.8ms)  SELECT `users`.* FROM `users` WHERE `users`.`id` = 1
-    [70278236677880 2016-11-07 16:55:54.590] INFO Completed 200 in 85.41ms [DB:6.35ms View:79.06ms]
+    [70207407934400 2016-11-07 17:30:18.387] INFO GET /v1/api.json {"type"=>"user", "_"=>"1478489192872"}
+    [70207407934400 2016-11-07 17:30:18.389] DEBUG User Load (0.4ms)  SELECT `users`.* FROM `users` WHERE `users`.`id` = 1
+    [70207407934400 2016-11-07 17:30:18.390] INFO Completed 200 in 2.69ms [DB:0.4ms View:2.29ms]
 
 If you prefer some other format I strongly encourage you to do pull request with new formatter class ;)
 
