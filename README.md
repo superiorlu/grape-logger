@@ -1,4 +1,4 @@
-# grape_logging
+# grape-logger
 
 [![Code Climate](https://codeclimate.com/github/aserafin/grape_logging/badges/gpa.svg)](https://codeclimate.com/github/aserafin/grape_logging)
 
