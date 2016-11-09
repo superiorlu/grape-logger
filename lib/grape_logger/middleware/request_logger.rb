@@ -1,5 +1,3 @@
-require 'grape/middleware/base'
-
 module GrapeLogger
   module Middleware
     # :nodoc:
