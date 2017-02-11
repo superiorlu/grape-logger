@@ -12,11 +12,10 @@ module GrapeLogger
       def initialize(app, options = {})
         super
         @included_loggers = options[:include] || []
-        @reporter = if options[:instrumentation_key]
-                      Reporters::ActiveSupportReporter.new(options[:instrumentation_key])
-                    else
-                      Reporters::LoggerReporter.new(options[:logger], options[:formatter])
-                    end
+        @reporter = Reporters::LoggerReporter.new(options[:logger], options[:formatter])
+        if options[:instrument_key]
+          @active_support_reporter = Reporters::ActiveSupportReporter.new(options[:instrument_key])
+        end
         @status = nil
       end
 
@@ -25,14 +24,16 @@ module GrapeLogger
         reset_db_runtime
         set_request_id
         start_time
-        @reporter.info "#{request.request_method} #{request.path} #{request.params.to_h}"
+        @reporter.info "#{request.request_method} #{request.path} #{request_params}"
 
         invoke_included_loggers(:before)
       end
 
       def after
         stop_time
-        @reporter.perform(collect_parameters)
+        params = collect_parameters
+        @reporter.perform(params)
+        @active_support_reporter.perform(params) if @active_support_reporter
         invoke_included_loggers(:after)
         nil
       end
@@ -75,6 +76,13 @@ module GrapeLogger
       end
 
       private
+
+      def request_params
+        request_params = env[Grape::Env::GRAPE_REQUEST_PARAMS].to_h
+        request_params.merge! env[Grape::Env::RACK_REQUEST_FORM_HASH] if env[Grape::Env::RACK_REQUEST_FORM_HASH]
+        request_params.merge! env['action_dispatch.request.request_parameters'] if env['action_dispatch.request.request_parameters']
+        request_params
+      end
 
       def set_request_id
         Thread.current[:request_id] = request.object_id

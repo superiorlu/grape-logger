@@ -23,10 +23,10 @@ module GrapeLogger
       def format_hash(hash)
         [].tap do |msg|
           msg << 'Completed'
-          msg << hash.delete(:status)
+          msg << hash[:status]
           msg << 'in'
-          msg << "#{hash[:time].delete(:total)}ms"
-          msg << "[DB:#{hash[:time].delete(:db)}ms View:#{hash[:time].delete(:view)}ms]"
+          msg << "#{hash[:time][:total]}ms"
+          msg << "[DB:#{hash[:time][:db]}ms View:#{hash[:time][:view]}ms]"
         end.join(' ')
       end
 
